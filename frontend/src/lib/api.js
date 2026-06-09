@@ -1,7 +1,4 @@
-const BASE = (() => {
-  try { return sessionStorage.getItem('melodia_api_url') || localStorage.getItem('melodia_api_url') || 'http://localhost:8001/api' }
-  catch { return 'http://localhost:8001/api' }
-})()
+const BASE = import.meta.env.VITE_MELODIA_API_URL || '/api'
 
 function getToken() {
   try {
@@ -15,21 +12,30 @@ async function request(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...options.headers }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
 
-  if (res.status === 401) {
-    sessionStorage.removeItem('melodia_token')
-    localStorage.removeItem('melodia_token')
-    sessionStorage.removeItem('melodia_user')
+  try {
+    const res = await fetch(`${BASE}${path}`, { ...options, headers, signal: controller.signal })
+
+    if (res.status === 401) {
+      sessionStorage.removeItem('melodia_token')
+      localStorage.removeItem('melodia_token')
+      sessionStorage.removeItem('melodia_user')
+      localStorage.removeItem('melodia_user')
+      window.location.href = '/login'
+      throw new Error('Session expired')
+    }
+
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.detail || 'Request failed')
+    return data
+  } finally {
+    clearTimeout(timeout)
   }
-
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.detail || 'Request failed')
-  return data
 }
 
 export const api = {
-  // auth
   login: (username, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
   register: (username, email, password) => request('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password }) }),
 

@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
-import hashlib
-import secrets
+import bcrypt as _bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,16 +12,10 @@ from ..models import User
 bearer = HTTPBearer(auto_error=False)
 
 def hash_password(password: str) -> str:
-    salt = secrets.token_hex(16)
-    h = hashlib.sha256((salt + password).encode()).hexdigest()
-    return f"{salt}${h}"
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
 
 def verify_password(password: str, hash: str) -> bool:
-    parts = hash.split("$")
-    if len(parts) != 2:
-        return False
-    salt, h = parts
-    return hashlib.sha256((salt + password).encode()).hexdigest() == h
+    return _bcrypt.checkpw(password.encode(), hash.encode())
 
 def create_token(username: str) -> str:
     exp = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -37,7 +30,7 @@ async def get_current_user(
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
-    except:
+    except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()

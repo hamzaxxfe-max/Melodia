@@ -63,17 +63,17 @@ export default function Player() {
 
       <div className="flex-1 flex flex-col items-center max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-1">
-          <button onClick={playPrev} className="text-surface-400 hover:text-white transition-colors">
+          <button onClick={playPrev} className="text-surface-400 hover:text-white transition-colors w-11 h-11 flex items-center justify-center">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
-          <button onClick={togglePlay} className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform">
+          <button onClick={togglePlay} className="w-11 h-11 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform">
             {isPlaying ? (
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             ) : (
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             )}
           </button>
-          <button onClick={playNext} className="text-surface-400 hover:text-white transition-colors">
+          <button onClick={playNext} className="text-surface-400 hover:text-white transition-colors w-11 h-11 flex items-center justify-center">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>

@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import Album, Song, User
 from .auth import hash_password
@@ -34,7 +35,7 @@ def _seed_data():
     return albums, songs
 
 async def seed_database(db: AsyncSession):
-    result = await db.execute(__import__("sqlalchemy").select(Album).limit(1))
+    result = await db.execute(select(Album).limit(1))
     if result.scalar_one_or_none():
         return
     albums, songs = _seed_data()
